@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "A0LNZB2Gleg=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\TamHoang\\source\\repos\\ATL-ATK\\ATL-ATK\\ATL-ATK.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\TamHoang\\.nuget\\packages\\autocad.net\\23.1.0\\autocad.net.23.1.0.nupkg.sha512",
+    "C:\\Users\\TamHoang\\.nuget\\packages\\autocad.net.core\\23.1.0\\autocad.net.core.23.1.0.nupkg.sha512",
+    "C:\\Users\\TamHoang\\.nuget\\packages\\autocad.net.model\\23.1.0\\autocad.net.model.23.1.0.nupkg.sha512"
+  ],
+  "logs": []
+}

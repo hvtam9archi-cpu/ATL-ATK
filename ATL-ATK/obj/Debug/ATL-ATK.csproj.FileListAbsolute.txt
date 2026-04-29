@@ -1,0 +1,3 @@
+C:\Users\TamHoang\source\repos\ATL-ATK\ATL-ATK\bin\Debug\ATL-ATK.dll
+C:\Users\TamHoang\source\repos\ATL-ATK\ATL-ATK\bin\Debug\ATL-ATK.pdb
+C:\Users\TamHoang\source\repos\ATL-ATK\ATL-ATK\bin\publish\ATL-ATK.dll

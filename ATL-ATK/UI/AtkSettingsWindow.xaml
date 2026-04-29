@@ -1,0 +1,167 @@
+<Window x:Class="ATL_ATK.UI.AtkSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thống kê Block Att, Dynamic (AutoCAD Table) v1.06"
+        Width="720" Height="700"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#F0F0F0">
+
+    <Window.Resources>
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="4,2"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="MinWidth" Value="70"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- Bottom Buttons -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" 
+                    HorizontalAlignment="Center" Margin="0,6">
+            <Button Content="OK" Width="90" IsDefault="True" Click="BtnOk_Click"/>
+            <Button Content="Cancel" Width="90" IsCancel="True" Click="BtnCancel_Click"/>
+            <Button Content="Info" Width="90" Click="BtnInfo_Click"/>
+        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="6">
+
+                <!-- Row 1: Block Declaration + Tag List + Presets -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Khai báo Block -->
+                    <GroupBox Header="Khai báo Block" Grid.Column="0">
+                        <StackPanel>
+                            <Button x:Name="BtnSelectBlock" Content="Chọn Block Att" Click="BtnSelectBlock_Click"/>
+                            <TextBlock x:Name="TxtBlockName" Text="Nothing selected" 
+                                       Margin="4" Foreground="Gray"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Danh sách Tag -->
+                    <GroupBox Header="Danh sách Tag" Grid.Column="1">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Top" Content="Copy" Click="BtnCopyTag_Click"
+                                    HorizontalAlignment="Left"/>
+                            <ListBox x:Name="LstTags" Height="90" Margin="2"/>
+                        </DockPanel>
+                    </GroupBox>
+
+                    <!-- Cài đặt sẵn -->
+                    <GroupBox Header="Cài đặt sẵn" Grid.Column="2">
+                        <StackPanel>
+                            <Button Content="Save" Click="BtnSaveSettings_Click"/>
+                            <Button Content="Load" Click="BtnLoadSettings_Click"/>
+                            <Button Content="Default" Click="BtnDefault_Click"/>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+
+                <!-- Row 2: Thiết lập bảng -->
+                <GroupBox Header="Thiết lập bảng">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="220"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <DockPanel Margin="2">
+                                <Label Content="Table Style" Width="80"/>
+                                <ComboBox x:Name="CmbTableStyle"/>
+                            </DockPanel>
+                            <DockPanel Margin="2">
+                                <Label Content="Text Style" Width="80"/>
+                                <ComboBox x:Name="CmbTextStyle"/>
+                            </DockPanel>
+                            <DockPanel Margin="2">
+                                <Label Content="Tiêu đề" Width="80"/>
+                                <TextBox x:Name="TxtTitle"/>
+                            </DockPanel>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <DockPanel Margin="2">
+                                <Label Content="Cao chữ" Width="70"/>
+                                <TextBox x:Name="TxtTextHeight" Width="60" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <DockPanel Margin="2">
+                                <Label Content="Cao hàng" Width="70"/>
+                                <TextBox x:Name="TxtRowHeight" Width="60" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <CheckBox x:Name="ChkAutoColumn" Content="Hàng cột tự động" Margin="6,4"/>
+                            <CheckBox x:Name="ChkShowSum" Content="Thêm hàng tính tổng" Margin="6,4"/>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Row 3: Nội dung cột -->
+                <GroupBox Header="Nội dung cột">
+                    <StackPanel>
+                        <!-- Toolbar -->
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Hướng dẫn cách nhập Tag" Click="BtnTips_Click"/>
+                            <Button Content="Thêm cột" Click="BtnAddColumn_Click"/>
+                            <Button Content="Bớt cột" Click="BtnRemoveColumn_Click"/>
+                        </StackPanel>
+
+                        <!-- Column definitions (dynamic) -->
+                        <ItemsControl x:Name="ColumnItems">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="65"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="{Binding Header}" Grid.Column="0" Width="65"/>
+                                        <TextBox Text="{Binding TagExpression, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Grid.Column="1"/>
+                                        <Label Content="Tên cột" Grid.Column="2"/>
+                                        <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Grid.Column="3"/>
+                                        <Label Content="Rộng" Grid.Column="4"/>
+                                        <TextBox Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Grid.Column="5"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Row 4: Tác giả -->
+                <GroupBox Header="Tác giả">
+                    <TextBlock Text="3Duy  |  Phone: 0922161194  |  Email: 3Duy3Duy@gmail.com"
+                               Margin="4" HorizontalAlignment="Center"/>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>
