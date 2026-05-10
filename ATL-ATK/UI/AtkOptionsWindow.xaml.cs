@@ -110,5 +110,16 @@ namespace ATL_ATK.UI
         {
             UpdateSortPanelState();
         }
+
+        private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == System.Windows.Input.MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void BtnCloseWindow_Click(object sender, RoutedEventArgs e)
+        {
+            BtnCancel_Click(sender, e);
+        }
     }
 }

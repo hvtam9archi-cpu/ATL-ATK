@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage SchemaVersion="1.0" AppVersion="1.0.0" Name="ATL-ATK Plugin" ProductCode="{C2A80F53-2F9B-4D09-B4A1-2C9757E4AE0F}">
+  <CompanyDetails Name="Your Company" Url="https://yourwebsite.com" />
+  <Components>
+    <RuntimeRequirements OS="Win64" Platform="AutoCAD*" SeriesMin="R24.0" SeriesMax="R24.3" />
+    <ComponentEntry AppName="ATL-ATK" Version="1.0" ModuleName="./Contents/ATL-ATK.dll" AppDescription="AutoCAD Plugin for Block Attribute Statistics" LoadOnCommandInvocation="True" LoadOnAutoCADStartup="True">
+      <Commands GroupName="ATL_ATK_GROUP">
+        <Command Local="ATL" Global="ATL" />
+        <Command Local="ATK" Global="ATK" />
+        <Command Local="AT1" Global="AT1" />
+        <Command Local="DY1" Global="DY1" />
+        <Command Local="ATDY1" Global="ATDY1" />
+        <Command Local="ATC" Global="ATC" />
+        <Command Local="DYC" Global="DYC" />
+        <Command Local="ATDYC" Global="ATDYC" />
+        <Command Local="BLC" Global="BLC" />
+        <Command Local="NDC" Global="NDC" />
+        <Command Local="ATKHELP" Global="ATKHELP" />
+      </Commands>
+    </ComponentEntry>
+  </Components>
+</ApplicationPackage>

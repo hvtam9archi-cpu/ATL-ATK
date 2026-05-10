@@ -13,15 +13,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoCAD.NET" Version="23.1.0">
+    <PackageReference Include="AutoCAD.NET" Version="23.1.0" ExcludeAssets="runtime">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="AutoCAD.NET.Core" Version="23.1.0">
+    <PackageReference Include="AutoCAD.NET.Core" Version="23.1.0" ExcludeAssets="runtime">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="AutoCAD.NET.Model" Version="23.1.0">
+    <PackageReference Include="AutoCAD.NET.Model" Version="23.1.0" ExcludeAssets="runtime">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Management" />
+  </ItemGroup>
+
+  <Target Name="DeployBundle" AfterTargets="Build">
+    <MakeDir Directories="$(AppData)\Autodesk\ApplicationPlugins\ATL-ATK.bundle\Contents" />
+    <Copy SourceFiles="@(ReferenceCopyLocalPaths)" DestinationFolder="$(AppData)\Autodesk\ApplicationPlugins\ATL-ATK.bundle\Contents" SkipUnchangedFiles="false" ContinueOnError="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(AppData)\Autodesk\ApplicationPlugins\ATL-ATK.bundle\Contents" SkipUnchangedFiles="false" ContinueOnError="true" />
+    <Copy SourceFiles="PackageContents.xml" DestinationFolder="$(AppData)\Autodesk\ApplicationPlugins\ATL-ATK.bundle\" SkipUnchangedFiles="false" ContinueOnError="true" />
+  </Target>
 
 </Project>
