@@ -13,6 +13,7 @@ namespace ATL_ATK.UI
     {
         public AtkSettings Settings { get; private set; }
         public bool IsConfirmed { get; private set; }
+        public bool IsUpdateMode { get; private set; }
 
         public AtkOptionsWindow(AtkSettings settings)
         {
@@ -98,6 +99,15 @@ namespace ATL_ATK.UI
         {
             IsConfirmed = false;
             DialogResult = false;
+            Close();
+        }
+
+        private void BtnUpdateTable_Click(object sender, RoutedEventArgs e)
+        {
+            SaveToSettings(); // Lưu cài đặt hiện tại
+            IsUpdateMode = true;
+            IsConfirmed = true; // Cho phép đi tiếp logic trong AtkCommand
+            DialogResult = true;
             Close();
         }
 

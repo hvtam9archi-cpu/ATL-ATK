@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Thống kê Block Att, Dynamic (AutoCAD Table) v1.06"
-        Width="720" SizeToContent="Height" MaxHeight="800"
-        d:DesignHeight="700" d:DesignWidth="720"
+        Width="532" SizeToContent="Height" MaxHeight="800"
+        d:DesignHeight="700"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -39,21 +39,20 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="10,0">
                         <Border Width="20" Height="20" CornerRadius="4" Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
                             <TextBlock Text="A" Foreground="White" FontWeight="Bold" FontFamily="Segoe UI" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="{Binding Path=Title, RelativeSource={RelativeSource AncestorType=Window}}" 
+                        <TextBlock 
                                    Foreground="{DynamicResource FgBrush}" 
-                                   FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" 
-                                   VerticalAlignment="Center" Margin="8,0"/>
+                                   FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" 
+                                   VerticalAlignment="Center" Margin="8,0" Text="ATL - Settings"/>
                     </StackPanel>
 
-                    <Button Grid.Column="1" Content="✕" Width="32" Height="26" Padding="0"
-                            Background="Transparent" BorderThickness="0" 
-                            Click="BtnCloseWindow_Click" VerticalAlignment="Top" HorizontalAlignment="Right"
-                            Foreground="{DynamicResource FgBrush}"/>
+                    <Button Grid.Column="1" Content="✕" Height="26" Padding="0" BorderThickness="0" 
+                            Click="BtnCloseWindow_Click" VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Foreground="{DynamicResource DangerBrush}" Background="#FF5A2626" FontWeight="Bold" Margin="2,2,8,2"/>
                 </Grid>
             </Border>
 
@@ -73,36 +72,36 @@
                             <!-- Khai báo Block -->
                             <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,6,0">
                                 <StackPanel>
-                                    <TextBlock Text="Khai báo Block" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
-                                    <Button x:Name="BtnSelectBlock" Content="Chọn Block Att" Click="BtnSelectBlock_Click"/>
+                                    <TextBlock Text="Block Definition" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6" HorizontalAlignment="Center"/>
+                                    <Button x:Name="BtnSelectBlock" Content="Pick Block" Click="BtnSelectBlock_Click"/>
                                     <TextBlock x:Name="TxtBlockName" Text="Nothing selected" Margin="4" Foreground="Gray"/>
                                 </StackPanel>
                             </Border>
 
                             <!-- Danh sách Tag -->
-                            <Border Grid.Column="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="6,0,6,0">
+                            <Border Grid.Column="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="6,0,6,0" Height="150">
                                 <DockPanel>
-                                    <TextBlock DockPanel.Dock="Top" Text="Danh sách Tag" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
-                                    <Button DockPanel.Dock="Top" Content="Copy" Click="BtnCopyTag_Click" HorizontalAlignment="Left" Margin="0,0,0,4"/>
-                                    <ListBox x:Name="LstTags" Height="90" Margin="2" Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"/>
+                                    <TextBlock DockPanel.Dock="Top" Text="Tags" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
+                                    <Button DockPanel.Dock="Top" Content="Copy" Click="BtnCopyTag_Click" HorizontalAlignment="Left" Margin="0,0,0,4" Height="Auto"/>
+                                    <ListBox x:Name="LstTags" Height="68" Margin="0.5,2,2,2" Background="Transparent" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Width="154" d:ItemsSource="{d:SampleData ItemCount=5}"/>
                                 </DockPanel>
                             </Border>
 
                             <!-- Cài đặt sẵn -->
-                            <Border Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="6,0,0,0">
+                            <Border Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="6,0,0,0" Height="150" VerticalAlignment="Top">
                                 <StackPanel>
-                                    <TextBlock Text="Cài đặt sẵn" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
-                                    <Button Content="Save" Click="BtnSaveSettings_Click"/>
-                                    <Button Content="Load" Click="BtnLoadSettings_Click"/>
+                                    <TextBlock Text="Settings" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6" HorizontalAlignment="Center"/>
+                                    <Button Content="Save" Click="BtnSaveSettings_Click" Margin="2,2,2,5"/>
+                                    <Button Content="Load" Click="BtnLoadSettings_Click" Margin="2,2,2,5"/>
                                     <Button Content="Default" Click="BtnDefault_Click"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
 
                         <!-- Row 2: Thiết lập bảng -->
-                        <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,12" Height="170">
                             <StackPanel>
-                                <TextBlock Text="Thiết lập bảng" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
+                                <TextBlock Text="Table Settings" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -119,22 +118,24 @@
                                             <ComboBox x:Name="CmbTextStyle"/>
                                         </DockPanel>
                                         <DockPanel Margin="2">
-                                            <Label Content="Tiêu đề" Width="80"/>
+                                            <Label Content="Label" Width="80"/>
                                             <TextBox x:Name="TxtTitle"/>
                                         </DockPanel>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="1">
                                         <DockPanel Margin="2">
-                                            <Label Content="Cao chữ" Width="70"/>
-                                            <TextBox x:Name="TxtTextHeight" Width="60" HorizontalAlignment="Left"/>
+                                            <Label Content="Text Height" Width="Auto"/>
+                                            <TextBox x:Name="TxtTextHeight" Width="130"/>
                                         </DockPanel>
                                         <DockPanel Margin="2">
-                                            <Label Content="Cao hàng" Width="70"/>
-                                            <TextBox x:Name="TxtRowHeight" Width="60" HorizontalAlignment="Left"/>
+                                            <Label Content="Row Height" Width="Auto"/>
+                                            <TextBox x:Name="TxtRowHeight" Width="129"/>
                                         </DockPanel>
-                                        <CheckBox x:Name="ChkAutoColumn" Content="Hàng cột tự động" Margin="6,4"/>
-                                        <CheckBox x:Name="ChkShowSum" Content="Thêm hàng tính tổng" Margin="6,4"/>
+                                        <Grid Height="38" Width="208">
+                                            <CheckBox x:Name="ChkAutoColumn" Content="Auto Column" Margin="0,14,105,9"/>
+                                            <CheckBox x:Name="ChkShowSum" Content="Total Column" Margin="108,14,0,9" IsChecked="False"/>
+                                        </Grid>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -143,13 +144,13 @@
                         <!-- Row 3: Nội dung cột -->
                         <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="Nội dung cột" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
-                                
+                                <TextBlock Text="Column Content" FontFamily="Segoe UI" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
+
                                 <!-- Toolbar -->
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Button Content="Hướng dẫn cách nhập Tag" Click="BtnTips_Click"/>
-                                    <Button Content="Thêm cột" Click="BtnAddColumn_Click"/>
-                                    <Button Content="Bớt cột" Click="BtnRemoveColumn_Click"/>
+                                    <Button Content="Tag Input Guide" Click="BtnTips_Click"/>
+                                    <Button Content="Add Column" Click="BtnAddColumn_Click"/>
+                                    <Button Content="Remove Column" Click="BtnRemoveColumn_Click"/>
                                 </StackPanel>
 
                                 <!-- Column definitions (dynamic) -->
@@ -188,9 +189,8 @@
             <!-- Row 2: Bottom Bar -->
             <Border Grid.Row="2" Background="{DynamicResource TitleBarBrush}" CornerRadius="0,0,10,10" Padding="14,8">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Info" Width="90" Height="34" Margin="0,0,6,0" Click="BtnInfo_Click" Background="{DynamicResource SurfaceBrush}"/>
+                    <Button Content="OK" Width="120" Height="34" IsDefault="True" Click="BtnOk_Click" Background="{DynamicResource AccentBrush}" Foreground="White" FontWeight="SemiBold" Margin="2,0,2,0"/>
                     <Button Content="Cancel" Width="90" Height="34" IsCancel="True" Margin="0,0,6,0" Click="BtnCancel_Click" Background="{DynamicResource SurfaceBrush}"/>
-                    <Button Content="OK" Width="120" Height="34" IsDefault="True" Click="BtnOk_Click" Background="{DynamicResource AccentBrush}" Foreground="White" FontWeight="SemiBold"/>
                 </StackPanel>
             </Border>
         </Grid>

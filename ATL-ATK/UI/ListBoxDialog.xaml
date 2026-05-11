@@ -45,10 +45,10 @@
                         <Border Width="20" Height="20" CornerRadius="4" Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
                             <TextBlock Text="A" Foreground="White" FontWeight="Bold" FontFamily="Segoe UI" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="{Binding Path=Title, RelativeSource={RelativeSource AncestorType=Window}}" 
+                        <TextBlock 
                                    Foreground="{DynamicResource FgBrush}" 
                                    FontFamily="Segoe UI" FontSize="12" FontWeight="SemiBold" 
-                                   VerticalAlignment="Center" Margin="8,0"/>
+                                   VerticalAlignment="Center" Margin="8,0" Text="Window"/>
                     </StackPanel>
 
                     <!-- Close Button -->

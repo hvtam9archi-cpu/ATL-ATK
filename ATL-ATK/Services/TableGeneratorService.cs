@@ -291,6 +291,114 @@ namespace ATL_ATK.Services
         }
 
         // -------------------------------------------------------
+        //  AUTO-UPDATE HELPERS
+        // -------------------------------------------------------
+
+        public static void AttachAtkTableXData(Database database, ObjectId tableId, string blockName)
+        {
+            using (Transaction tr = database.TransactionManager.StartTransaction())
+            {
+                RegAppTable regTable = (RegAppTable)tr.GetObject(database.RegAppTableId, OpenMode.ForRead);
+                if (!regTable.Has("ATL_ATK_TABLE"))
+                {
+                    regTable.UpgradeOpen();
+                    RegAppTableRecord regRecord = new RegAppTableRecord();
+                    regRecord.Name = "ATL_ATK_TABLE";
+                    regTable.Add(regRecord);
+                    tr.AddNewlyCreatedDBObject(regRecord, true);
+                }
+
+                Table table = tr.GetObject(tableId, OpenMode.ForWrite) as Table;
+                if (table != null)
+                {
+                    ResultBuffer rb = new ResultBuffer(
+                        new TypedValue((int)DxfCode.ExtendedDataRegAppName, "ATL_ATK_TABLE"),
+                        new TypedValue((int)DxfCode.ExtendedDataAsciiString, blockName ?? "")
+                    );
+                    table.XData = rb;
+                }
+                tr.Commit();
+            }
+        }
+
+        public static void UpdateTableData(Database database, ObjectId tableId, List<List<string>> fullTableData)
+        {
+            using (Transaction tr = database.TransactionManager.StartTransaction())
+            {
+                Table table = tr.GetObject(tableId, OpenMode.ForWrite) as Table;
+                if (table == null) return;
+
+                int targetRows = fullTableData.Count;
+                int targetCols = fullTableData.Max(r => r.Count);
+
+                table.SuppressRegenerateTable(true);
+
+                // Bỏ merge cũ ở hàng tiêu đề để tránh lỗi khi thay đổi kích thước
+                try
+                {
+                    if (table.Rows.Count > 0 && table.Columns.Count > 1)
+                    {
+                        table.UnmergeCells(CellRange.Create(table, 0, 0, 0, table.Columns.Count - 1));
+                    }
+                }
+                catch { }
+
+                // Cập nhật số cột
+                while (table.Columns.Count < targetCols)
+                {
+                    double width = table.Columns.Count > 0 ? table.Columns[table.Columns.Count - 1].Width : 1000;
+                    table.InsertColumns(table.Columns.Count, width, 1);
+                }
+                while (table.Columns.Count > targetCols)
+                    table.DeleteColumns(table.Columns.Count - 1, 1);
+
+                // Cập nhật số hàng
+                while (table.Rows.Count < targetRows)
+                {
+                    double height = table.Rows.Count > 1 ? table.Rows[table.Rows.Count - 1].Height : 360;
+                    table.InsertRows(table.Rows.Count, height, 1);
+                }
+                while (table.Rows.Count > targetRows)
+                    table.DeleteRows(table.Rows.Count - 1, 1);
+
+                // Cập nhật dữ liệu
+                for (int rowIndex = 0; rowIndex < targetRows; rowIndex++)
+                {
+                    List<string> row = fullTableData[rowIndex];
+                    for (int colIndex = 0; colIndex < targetCols; colIndex++)
+                    {
+                        Cell cell = table.Cells[rowIndex, colIndex];
+                        
+                        string cellValue = colIndex < row.Count ? row[colIndex] : "";
+
+                        if (!string.IsNullOrEmpty(cellValue) && cellValue.StartsWith("%%BLK"))
+                        {
+                            string blockName = cellValue.Substring(5);
+                            ObjectId blockId = GetBlockId(database, tr, blockName);
+                            if (!blockId.IsNull)
+                                cell.BlockTableRecordId = blockId;
+                        }
+                        else
+                        {
+                            // Thay vì Clear() làm mất định dạng (màu, canh lề, font mà người dùng có thể đã sửa),
+                            // chỉ SetValue để ghi đè nội dung chữ.
+                            cell.SetValue(cellValue, ParseOption.ParseOptionNone);
+                        }
+                    }
+                }
+
+                // Tiêu đề merge lại
+                if (targetRows > 0 && targetCols > 1)
+                {
+                    table.MergeCells(CellRange.Create(table, 0, 0, 0, targetCols - 1));
+                }
+
+                table.SuppressRegenerateTable(false);
+                tr.Commit();
+            }
+        }
+
+        // -------------------------------------------------------
         //  PRIVATE HELPERS
         // -------------------------------------------------------
 

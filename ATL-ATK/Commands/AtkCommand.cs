@@ -81,12 +81,16 @@ namespace ATL_ATK.Commands
                         settings.SortFuzz);
                 }
 
-                // Bước 6: Chọn điểm chèn bảng
-                PromptPointResult pointResult = editor.GetPoint("\nChọn điểm xuất bảng thống kê: ");
-                if (pointResult.Status != PromptStatus.OK)
-                    return;
+                // Bước 6: Chọn điểm chèn bảng (Bỏ qua nếu đang là chế độ cập nhật)
+                Point3d insertionPoint = Point3d.Origin;
+                if (!optionsWindow.IsUpdateMode)
+                {
+                    PromptPointResult pointResult = editor.GetPoint("\nChọn điểm xuất bảng thống kê: ");
+                    if (pointResult.Status != PromptStatus.OK)
+                        return;
 
-                Point3d insertionPoint = pointResult.Value;
+                    insertionPoint = pointResult.Value;
+                }
 
                 // Bước 7: Xây dựng dữ liệu bảng
                 int precision = Convert.ToInt32(Application.GetSystemVariable("LUPREC"));
@@ -136,9 +140,16 @@ namespace ATL_ATK.Commands
 
                 using (DocumentLock docLock = document.LockDocument())
                 {
-                    if (settings.AutoColumnWidth)
+                    if (optionsWindow.IsUpdateMode)
                     {
-                        TableGeneratorService.CreateTableAutoWidth(
+                        TableUpdateService.UpdateAllAtkTablesWithData(document, fullTableData);
+                        editor.WriteMessage($"\nĐã cập nhật bảng thống kê: {blockDataList.Count} block, {settings.TotalColumns} cột.");
+                    }
+                    else
+                    {
+                        if (settings.AutoColumnWidth)
+                        {
+                        ObjectId tableId = TableGeneratorService.CreateTableAutoWidth(
                             database, fullTableData,
                             settings.TextHeight,
                             settings.TextHeight * 3.0,
@@ -147,6 +158,7 @@ namespace ATL_ATK.Commands
                             tableStyleName,
                             textStyleName,
                             layerName);
+                        TableGeneratorService.AttachAtkTableXData(database, tableId, settings.BlockName);
                     }
                     else
                     {
@@ -161,7 +173,7 @@ namespace ATL_ATK.Commands
                             { 0, settings.RowHeight }
                         };
 
-                        TableGeneratorService.CreateTableManualWidth(
+                        ObjectId tableId = TableGeneratorService.CreateTableManualWidth(
                             database, fullTableData,
                             rowHeights, columnWidths,
                             settings.TextHeight,
@@ -170,10 +182,15 @@ namespace ATL_ATK.Commands
                             tableStyleName,
                             textStyleName,
                             layerName);
+                        TableGeneratorService.AttachAtkTableXData(database, tableId, settings.BlockName);
                     }
-                }
+                } // Đóng nhánh else của IsUpdateMode
+                } // Đóng using (DocumentLock)
 
-                editor.WriteMessage($"\nĐã tạo bảng thống kê: {blockDataList.Count} block, {settings.TotalColumns} cột.");
+                if (!optionsWindow.IsUpdateMode)
+                {
+                    editor.WriteMessage($"\nĐã tạo bảng thống kê: {blockDataList.Count} block, {settings.TotalColumns} cột.");
+                }
             }
             catch (System.Exception ex)
             {
@@ -223,7 +240,7 @@ namespace ATL_ATK.Commands
         }
 
         /// <summary>Xây dựng dữ liệu bảng từ danh sách Block</summary>
-        private List<List<string>> BuildTableData(
+        public static List<List<string>> BuildTableData(
             List<BlockData> blockDataList,
             AtkSettings settings,
             int precision)
@@ -259,7 +276,7 @@ namespace ATL_ATK.Commands
         }
 
         /// <summary>Xây dựng hàng tổng</summary>
-        private List<string> BuildSumRow(List<List<string>> tableRows, int totalColumns)
+        public static List<string> BuildSumRow(List<List<string>> tableRows, int totalColumns)
         {
             var sumRow = new List<string>();
 
@@ -294,7 +311,7 @@ namespace ATL_ATK.Commands
         }
 
         /// <summary>Thay thế placeholder STT bằng số thứ tự thực</summary>
-        private void ReplaceSequenceNumbers(List<List<string>> tableRows)
+        public static void ReplaceSequenceNumbers(List<List<string>> tableRows)
         {
             const string STT_PLACEHOLDER = "!@#$%^&*(STT)*&^%$#@!";
 
