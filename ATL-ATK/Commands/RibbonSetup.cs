@@ -1,6 +1,7 @@
 using System;
-using Autodesk.AutoCAD.Runtime;
+using System.Windows.Input;
 using Autodesk.AutoCAD.ApplicationServices;
+using Autodesk.AutoCAD.Runtime;
 using Autodesk.Windows;
 using Application = Autodesk.AutoCAD.ApplicationServices.Core.Application;
 
@@ -8,113 +9,217 @@ using Application = Autodesk.AutoCAD.ApplicationServices.Core.Application;
 
 namespace ATL_ATK.Commands
 {
+    /// <summary>
+    /// Tự động chèn Ribbon Panel "Thống Kê" vào Tab chung "TH Tools".
+    /// Nếu Tab đã tồn tại (do plugin khác tạo), sẽ tái sử dụng — không tạo mới.
+    /// Implements IExtensionApplication để AutoCAD tự gọi Initialize() khi load DLL.
+    /// </summary>
     public class RibbonSetup : IExtensionApplication
     {
+        private const string TabId = "TH_TOOLS_TAB";
+        private const string TabTitle = "TH Tools";
+        private const string PanelId = "ATL_ATK_PANEL";
+
         public void Initialize()
         {
-            // Initialize Plugin
             try
             {
                 // Verify license on load
                 if (!Services.LicenseManager.Instance.IsValid)
                 {
-                    Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage("\n[ATL-ATK] License is invalid.");
+                    Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage(
+                        "\n[ATL-ATK] License is invalid.");
                     return;
                 }
 
-                Application.SystemVariableChanged += OnSystemVariableChanged;
-                Autodesk.AutoCAD.ApplicationServices.Application.Idle += OnIdle;
-                Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage("\n[ATL-ATK] Plugin initialized successfully.");
+                // Đăng ký Idle để chờ Ribbon sẵn sàng
+                Autodesk.AutoCAD.ApplicationServices.Application.Idle += Application_Idle;
+                // Đăng ký SystemVariableChanged để bắt đổi Workspace → vẽ lại Ribbon
+                Application.SystemVariableChanged += Application_SystemVariableChanged;
+
+                Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage(
+                    "\n[ATL-ATK] Plugin initialized successfully.");
             }
             catch (System.Exception ex)
             {
-                Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage($"\n[ATL-ATK] Init Error: {ex.Message}");
-            }
-        }
-
-        private void OnIdle(object sender, EventArgs e)
-        {
-            Autodesk.AutoCAD.ApplicationServices.Application.Idle -= OnIdle;
-            CreateRibbon();
-        }
-
-        private void OnSystemVariableChanged(object sender, Autodesk.AutoCAD.ApplicationServices.SystemVariableChangedEventArgs e)
-        {
-            if (e.Name.Equals("COLORTHEME", StringComparison.OrdinalIgnoreCase))
-            {
-                // Theme changed logic if necessary globally
+                Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage(
+                    $"\n[ATL-ATK] Init Error: {ex.Message}");
             }
         }
 
         public void Terminate()
         {
-            Application.SystemVariableChanged -= OnSystemVariableChanged;
+            Autodesk.AutoCAD.ApplicationServices.Application.Idle -= Application_Idle;
+            Application.SystemVariableChanged -= Application_SystemVariableChanged;
+        }
+
+        private void Application_Idle(object sender, EventArgs e)
+        {
+            // Chỉ gọi CreateRibbon khi Ribbon đã sẵn sàng
+            if (ComponentManager.Ribbon != null)
+            {
+                Autodesk.AutoCAD.ApplicationServices.Application.Idle -= Application_Idle;
+                CreateRibbon();
+            }
+        }
+
+        private void Application_SystemVariableChanged(object sender, SystemVariableChangedEventArgs e)
+        {
+            // Khi đổi Workspace (WSCURRENT), vẽ lại Ribbon nếu cần
+            if (e.Name.Equals("WSCURRENT", StringComparison.OrdinalIgnoreCase)
+                && ComponentManager.Ribbon != null)
+            {
+                CreateRibbon();
+            }
         }
 
         private void CreateRibbon()
         {
-            RibbonControl ribbon = ComponentManager.Ribbon;
-            if (ribbon == null) return;
+            try
+            {
+                RibbonControl ribbon = ComponentManager.Ribbon;
+                if (ribbon == null) return;
 
-            string tabId = "ATL_ATK_TAB";
-            RibbonTab rtab = ribbon.FindTab(tabId);
-            if (rtab != null) return;
+                // 1. Tìm hoặc Tạo Tab "TH Tools" (chia sẻ với các plugin khác)
+                RibbonTab tab = ribbon.FindTab(TabId);
+                if (tab == null)
+                {
+                    tab = new RibbonTab { Title = TabTitle, Id = TabId };
+                    ribbon.Tabs.Add(tab);
+                }
 
-            rtab = new RibbonTab();
-            rtab.Title = "ATL-ATK";
-            rtab.Id = tabId;
-            ribbon.Tabs.Add(rtab);
+                // 2. Kiểm tra Panel đã tồn tại chưa (tránh duplicate khi NETLOAD lại hoặc đổi Workspace)
+                foreach (RibbonPanel existingPanel in tab.Panels)
+                {
+                    if (existingPanel.Source.Id == PanelId)
+                        return; // Panel đã có, không cần tạo lại
+                }
 
-            AddPanel(rtab);
+                // 3. Tạo Panel "Thống Kê"
+                RibbonPanelSource panelSource = new RibbonPanelSource { Title = "Thống Kê", Id = PanelId };
+                RibbonPanel panel = new RibbonPanel { Source = panelSource };
 
-            rtab.IsActive = true;
+                var commandHandler = new AtkRibbonCommandHandler();
+
+                // 4. Button "ATK" — Nút lớn (Large) với icon
+                RibbonButton btnAtk = new RibbonButton
+                {
+                    Text = "\nATK\nThống Kê",
+                    ShowText = true,
+                    ShowImage = true,
+                    Size = RibbonItemSize.Large,
+                    Orientation = System.Windows.Controls.Orientation.Vertical,
+                    LargeImage = GenerateIcon("AK", 32),
+                    Image = GenerateIcon("AK", 16),
+                    CommandParameter = "ATK",
+                    CommandHandler = commandHandler
+                };
+
+                // 5. Button "ATL" — Nút lớn (Large) với icon
+                RibbonButton btnAtl = new RibbonButton
+                {
+                    Text = "\nATL\nThiết Lập",
+                    ShowText = true,
+                    ShowImage = true,
+                    Size = RibbonItemSize.Large,
+                    Orientation = System.Windows.Controls.Orientation.Vertical,
+                    LargeImage = GenerateIcon("AL", 32),
+                    Image = GenerateIcon("AL", 16),
+                    CommandParameter = "ATL",
+                    CommandHandler = commandHandler
+                };
+
+                // 6. Thêm các button vào Panel
+                panelSource.Items.Add(btnAtk);
+                panelSource.Items.Add(btnAtl);
+
+                tab.Panels.Add(panel);
+                tab.IsActive = true;
+            }
+            catch (System.Exception ex)
+            {
+                Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage(
+                    $"\n[ATL-ATK] Error loading ribbon: {ex.Message}\n");
+            }
         }
 
-        private void AddPanel(RibbonTab tab)
+        /// <summary>
+        /// Tạo icon WPF bằng DrawingVisual (không cần file ảnh ngoài).
+        /// Sử dụng Accent Color (#2563EB) làm nền, chữ trắng Bold.
+        /// </summary>
+        private System.Windows.Media.ImageSource GenerateIcon(string text, int size)
         {
-            RibbonPanelSource panelSrc = new RibbonPanelSource();
-            panelSrc.Title = "Thống Kê";
+            var visual = new System.Windows.Media.DrawingVisual();
+            using (var drawingContext = visual.RenderOpen())
+            {
+                // Nền bo góc với màu Accent
+                var accentBrush = new System.Windows.Media.SolidColorBrush(
+                    System.Windows.Media.Color.FromRgb(37, 99, 235));
 
-            RibbonPanel panel = new RibbonPanel();
-            panel.Source = panelSrc;
-            tab.Panels.Add(panel);
+                // Vẽ nền
+                drawingContext.DrawRoundedRectangle(
+                    accentBrush, null,
+                    new System.Windows.Rect(0, 0, size, size),
+                    size * 0.15, size * 0.15);
 
-            // Create buttons
-            RibbonButton btnAtk = new RibbonButton();
-            btnAtk.Text = "ATK";
-            btnAtk.ShowText = true;
-            btnAtk.CommandParameter = "ATK ";
-            btnAtk.CommandHandler = new RibbonCommandHandler();
+                // Vẽ viền trắng mỏng
+                drawingContext.DrawRoundedRectangle(
+                    null,
+                    new System.Windows.Media.Pen(System.Windows.Media.Brushes.White, size > 20 ? 0.8 : 0.5),
+                    new System.Windows.Rect(0.5, 0.5, size - 1, size - 1),
+                    size * 0.15, size * 0.15);
 
-            RibbonButton btnAtl = new RibbonButton();
-            btnAtl.Text = "Thiết Lập";
-            btnAtl.ShowText = true;
-            btnAtl.CommandParameter = "ATL ";
-            btnAtl.CommandHandler = new RibbonCommandHandler();
+                // Chữ trên icon
+                double fontSize = size > 20 ? 13 : 8;
+                string displayText = text.Length > 2 ? text.Substring(0, 2) : text;
 
-            panelSrc.Items.Add(btnAtk);
-            panelSrc.Items.Add(new RibbonRowBreak());
-            panelSrc.Items.Add(btnAtl);
+                var formattedText = new System.Windows.Media.FormattedText(
+                    displayText,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Windows.FlowDirection.LeftToRight,
+                    new System.Windows.Media.Typeface(
+                        new System.Windows.Media.FontFamily("Segoe UI"),
+                        System.Windows.FontStyles.Normal,
+                        System.Windows.FontWeights.Bold,
+                        System.Windows.FontStretches.Normal),
+                    fontSize,
+                    System.Windows.Media.Brushes.White,
+                    1.0);
+
+                // Căn giữa text trong icon
+                double textX = (size - formattedText.Width) / 2;
+                double textY = (size - formattedText.Height) / 2;
+                drawingContext.DrawText(formattedText, new System.Windows.Point(textX, textY));
+            }
+
+            var renderTarget = new System.Windows.Media.Imaging.RenderTargetBitmap(
+                size, size, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            renderTarget.Render(visual);
+            return renderTarget;
         }
     }
 
-    public class RibbonCommandHandler : System.Windows.Input.ICommand
+    /// <summary>
+    /// Handler xử lý click Ribbon Button → gửi lệnh đến AutoCAD command line.
+    /// </summary>
+    public class AtkRibbonCommandHandler : ICommand
     {
+        public bool CanExecute(object parameter) => true;
+
 #pragma warning disable CS0067
         public event EventHandler CanExecuteChanged;
 #pragma warning restore CS0067
 
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
         public void Execute(object parameter)
         {
-            Document doc = Application.DocumentManager.MdiActiveDocument;
-            if (doc != null && parameter is string cmd)
+            if (parameter is RibbonButton button && button.CommandParameter is string commandName)
             {
-                doc.SendStringToExecute(cmd, true, false, false);
+                Document doc = Application.DocumentManager.MdiActiveDocument;
+                if (doc == null) return;
+
+                // Hủy lệnh đang chạy (nếu có), sau đó gửi tên lệnh riêng biệt
+                doc.SendStringToExecute("\x1B\x1B", true, false, false);
+                doc.SendStringToExecute(commandName + "\n", true, false, false);
             }
         }
     }

@@ -5,6 +5,9 @@
     <RootNamespace>ATL_ATK</RootNamespace>
     <AssemblyName>ATL-ATK</AssemblyName>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <Platforms>AnyCPU;x64</Platforms>
+    <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
