@@ -43,9 +43,9 @@ namespace ATL_ATK.Commands
                         GlobalSettings.TextStyleName = textStyles[0];
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
-                // Bỏ qua nếu chưa mở bản vẽ
+                System.Diagnostics.Debug.WriteLine($"[ATL-ATK] EnsureInitialized: {ex.Message}");
             }
 
             _initialized = true;

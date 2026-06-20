@@ -476,4 +476,30 @@
         <Setter Property="Background" Value="Transparent"/>
     </Style>
 
+    <!-- ==================== PROGRESSBAR ==================== -->
+    <Style TargetType="ProgressBar">
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="Background" Value="{StaticResource TrackBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ProgressBar}">
+                    <Grid MinHeight="{TemplateBinding Height}">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"/>
+                        <Border x:Name="PART_Track" CornerRadius="4">
+                            <Border x:Name="PART_Indicator"
+                                    Background="{StaticResource AccentBrush}"
+                                    CornerRadius="4"
+                                    HorizontalAlignment="Left"/>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

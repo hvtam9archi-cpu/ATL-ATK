@@ -111,7 +111,7 @@ namespace ATL_ATK.Commands
                 // Sum row
                 if (settings.ShowSumRow)
                 {
-                    tableData.Add(BuildSumRow(tableData, header.Count));
+                    tableData.Add(CountLogic.BuildSumRow(tableData, header.Count));
                 }
 
                 // Create table
@@ -214,7 +214,7 @@ namespace ATL_ATK.Commands
 
                 if (settings.ShowSumRow)
                 {
-                    tableData.Add(BuildSumRow(tableData, header.Count));
+                    tableData.Add(CountLogic.BuildSumRow(tableData, header.Count));
                 }
 
                 using (document.LockDocument())
@@ -332,7 +332,7 @@ namespace ATL_ATK.Commands
 
                 if (settings.ShowSumRow)
                 {
-                    tableData.Add(BuildSumRow(tableData, header.Count));
+                    tableData.Add(CountLogic.BuildSumRow(tableData, header.Count));
                 }
 
                 using (document.LockDocument())
@@ -359,35 +359,6 @@ namespace ATL_ATK.Commands
         // -------------------------------------------------------
         //  SHARED HELPERS
         // -------------------------------------------------------
-
-        private static List<string> BuildSumRow(List<List<string>> tableData, int totalColumns)
-        {
-            var sumRow = new List<string>();
-            // Bắt đầu từ hàng 2 (bỏ title + header)
-            var dataRows = tableData.Skip(2).ToList();
-
-            for (int colIndex = 0; colIndex < totalColumns; colIndex++)
-            {
-                double sum = 0;
-                bool hasNumber = false;
-
-                foreach (var row in dataRows)
-                {
-                    if (colIndex < row.Count && double.TryParse(row[colIndex], out double val))
-                    {
-                        sum += val;
-                        hasNumber = true;
-                    }
-                }
-
-                if (hasNumber)
-                    sumRow.Add(StringHelper.FormatNumber(sum));
-                else
-                    sumRow.Add(colIndex == 0 ? "TỔNG" : "");
-            }
-
-            return sumRow;
-        }
 
         internal static string GetTableStyleName(Database database, AtkSettings settings)
         {

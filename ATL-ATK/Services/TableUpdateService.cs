@@ -51,9 +51,10 @@ namespace ATL_ATK.Services
                     TableGeneratorService.UpdateTableData(database, tableId, fullTableData);
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                // Bỏ qua lỗi
+                Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage(
+                    $"\n[ATL-ATK] TableUpdateService Error: {ex.Message}");
             }
         }
     }
